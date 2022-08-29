@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  airsonic-advanced:
+    container_name: airsonic-advanced
+    image: airsonicadvanced/airsonic-advanced:latest
+    restart: unless-stopped
+    ports:
+      - 4040:4040
+      - 4041:4041 #UPnp
+    environment:
+      JAVA_OPTS: '-Dserver.forward-headers-strategy=native' #optional - if you use a reverse-proxy
+    volumes:
+      - ./data/playlists:/var/playlists
+      - ./data/podcasts:/var/podcasts
+      - ./data/data:/var/airsonic
+      - ./data/music:/var/music
+
+  caddy:
+    image: caddy:2.5.2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+    external: true
+  caddy_config:
